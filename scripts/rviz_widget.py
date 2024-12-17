@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-'''
-Copyright (c) 2019-2020, Juan Miguel Jimeno
+"""Copyright (c) 2019-2020, Juan Miguel Jimeno
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -22,18 +21,22 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-'''
+"""
 
-import sys, os
-from python_qt_binding.QtGui import *
+import os
+import sys
+
 from python_qt_binding.QtCore import *
+from python_qt_binding.QtGui import *
+
 try:
     from python_qt_binding.QtWidgets import *
 except ImportError:
     pass
 
-import rviz
 import roslaunch
+from rviz import bindings as rviz
+
 
 class RvizWidget(QWidget):
     urdf_loaded = Signal()
@@ -46,8 +49,12 @@ class RvizWidget(QWidget):
 
         self.using_urdf = False
 
-        rviz_config_path = str(os.path.dirname(sys.path[0]) + "/config/setup_assistant.rviz")
-        description_launch_path = str(os.path.dirname(sys.path[0]) + "/launch/description.launch")
+        rviz_config_path = str(
+            os.path.dirname(sys.path[0]) + "/config/setup_assistant.rviz",
+        )
+        description_launch_path = str(
+            os.path.dirname(sys.path[0]) + "/launch/description.launch",
+        )
 
         self.main.file_browser.new_urdf.connect(self.on_urdf_path_load)
 
@@ -69,7 +76,7 @@ class RvizWidget(QWidget):
 
         self.manager = self.frame.getManager()
 
-        self.robot_model_display = self.manager.getRootDisplayGroup().getDisplayAt(2) 
+        self.robot_model_display = self.manager.getRootDisplayGroup().getDisplayAt(2)
         self.robot_model_display.setBool(False)
 
         self.link_highlighter = self.robot_model_display.subProp("Highlight Link")
@@ -83,10 +90,13 @@ class RvizWidget(QWidget):
         self.highlighted_link = None
 
         self.description_launch_args = [description_launch_path, "description_file:foo"]
-        
+
         description_loader_uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
         roslaunch.configure_logging(description_loader_uuid)
-        self.description_launcher = roslaunch.parent.ROSLaunchParent(description_loader_uuid, [self.description_launch_args[0]])
+        self.description_launcher = roslaunch.parent.ROSLaunchParent(
+            description_loader_uuid,
+            [self.description_launch_args[0]],
+        )
 
     def highlight_link(self, link_name):
         if link_name != None and link_name != self.highlighted_link:
@@ -104,7 +114,7 @@ class RvizWidget(QWidget):
         self.description_launch_args[1] = path_arg
 
     def launch_file(self, urdf_path):
-        #this is a hack to pass urdf file
+        # this is a hack to pass urdf file
         os.environ["CHAMP_SETUP_ASSISTANT_URDF"] = urdf_path
 
         self.description_launcher.shutdown()
